@@ -77,7 +77,7 @@ public class Simulator {
             int height = parsePositiveInt(tokens[4]);
             Flyable aircraft;
             try {
-                aircraft = AircraftFactory.newAircraft(tokens[0], tokens[1], longitude, latitude, height);;
+                aircraft = AircraftFactory.newAircraft(tokens[0], tokens[1], longitude, latitude, height);
             } catch (IllegalArgumentException e) {
                 fail("Unknown aircraft type: " + tokens[0]);
                 return;
