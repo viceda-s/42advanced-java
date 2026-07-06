@@ -31,3 +31,6 @@ bin/
 */ro
 sources.txt
 simulation.txt
+
+#Graphify files
+graphify-out/
