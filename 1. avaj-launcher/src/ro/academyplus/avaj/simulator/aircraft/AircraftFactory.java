@@ -1,23 +1,27 @@
 package ro.academyplus.avaj.simulator.aircraft;
 
+import ro.academyplus.avaj.simulator.exceptions.InvalidAircraftTypeException;
+
 public class AircraftFactory {
     private AircraftFactory() {};
 
     private static long idCounter = 0;
 
-    public static Flyable newAircraft(String type, String name, int longitude, int latitude, int height) {
+    public static Flyable newAircraft(String type, String name, int longitude, int latitude, int height) throws InvalidAircraftTypeException {
         Coordinates coordinates = new Coordinates(longitude, latitude, height);
         long id = ++idCounter;
 
         switch(type.toLowerCase()) {
-            case "helicopter":
+            case "helicopter" -> {
                 return new Helicopter(id, name, coordinates);
-            case "jetplane":
+            }
+            case "jetplane" -> {
                 return new JetPlane(id, name, coordinates);
-            case "balloon":
+            }
+            case "balloon" -> {
                 return new Balloon(id, name, coordinates);
-            default:
-                throw new IllegalArgumentException("Unknown aircraft type: " + type);
+            }
+            default -> throw new InvalidAircraftTypeException("Unknown aircraft type: " + type);
         }
     }
     

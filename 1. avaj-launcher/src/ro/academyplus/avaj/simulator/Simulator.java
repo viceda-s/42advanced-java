@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import ro.academyplus.avaj.simulator.aircraft.AircraftFactory;
 import ro.academyplus.avaj.simulator.aircraft.Flyable;
+import ro.academyplus.avaj.simulator.exceptions.InvalidAircraftCountException;
+import ro.academyplus.avaj.simulator.exceptions.InvalidAircraftLineException;
+import ro.academyplus.avaj.simulator.exceptions.InvalidScenarioException;
 import ro.academyplus.avaj.simulator.tower.WeatherTower;
 
 public class Simulator {
@@ -17,17 +20,15 @@ public class Simulator {
         System.exit(1);
     }
 
-    private static int parsePositiveInt(String token) {
+    private static int parsePositiveInt(String token) throws InvalidAircraftLineException {
         int value;
         try {
             value = Integer.parseInt(token);
         } catch (NumberFormatException e) {
-            fail("Expected a positive integer: " + token);
-            return -1;
+            throw new InvalidAircraftLineException("Expected a positive integer: " + token);
         }
         if (value <= 0) {
-            fail("Expected a positive integer: " + token);
-            return -1;
+            throw new InvalidAircraftLineException("Expected a positive integer: " + token);
         }
         return value;
     }
@@ -44,45 +45,41 @@ public class Simulator {
             fail("Cannot read file:" + args[0]);
             return;
         }
-        if (lines.isEmpty()) {
-            fail("File is empty.");
-            return;
-        }
 
         int weatherChanges;
         List<Flyable> aircraftList = new ArrayList<>();
 
         try {
-            weatherChanges = Integer.parseInt(lines.get(0).trim());
-        } catch (NumberFormatException e) {
-            fail("First line must be a positive integer.");
-            return;
-        }
-        if (weatherChanges <= 0) {
-            fail("First line must be a positive integer.");
-            return;
-        }
-
-        for (int i = 1; i < lines.size(); i++) {
-            String line = lines.get(i);
-            String[] tokens = line.trim().split("\\s+");
-
-            if (tokens.length != 5) {
-                fail("Invalid aircraft line:" + line);
-                return;
+            if (lines.isEmpty()) {
+                throw new InvalidAircraftCountException("File is empty.");
             }
 
-            int longitude = parsePositiveInt(tokens[2]);
-            int latitude = parsePositiveInt(tokens[3]);
-            int height = parsePositiveInt(tokens[4]);
-            Flyable aircraft;
             try {
-                aircraft = AircraftFactory.newAircraft(tokens[0], tokens[1], longitude, latitude, height);
-            } catch (IllegalArgumentException e) {
-                fail("Unknown aircraft type: " + tokens[0]);
-                return;
+                weatherChanges = Integer.parseInt(lines.get(0).trim());
+            } catch (NumberFormatException e) {
+                throw new InvalidAircraftCountException("First line must be a positive integer.");
             }
-            aircraftList.add(aircraft);
+            if (weatherChanges <= 0) {
+                throw new InvalidAircraftCountException("First line must be a positive integer.");
+            }
+
+            for (int i = 1; i < lines.size(); i++) {
+                String line = lines.get(i);
+                String[] tokens = line.trim().split("\\s+");
+
+                if (tokens.length != 5) {
+                    throw new InvalidAircraftLineException("Invalid aircraft line:" + line);
+                }
+
+                int longitude = parsePositiveInt(tokens[2]);
+                int latitude = parsePositiveInt(tokens[3]);
+                int height = parsePositiveInt(tokens[4]);
+                Flyable aircraft = AircraftFactory.newAircraft(tokens[0], tokens[1], longitude, latitude, height);
+                aircraftList.add(aircraft);
+            }
+        } catch (InvalidScenarioException e) {
+            fail(e.getMessage());
+            return;
         }
 
         try {
