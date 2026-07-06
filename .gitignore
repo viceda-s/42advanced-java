@@ -28,5 +28,6 @@ replay_pid*
 
 # Build output / generated files
 bin/
+*/ro
 sources.txt
 simulation.txt
